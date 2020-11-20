@@ -14,7 +14,9 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
     access_token = if context.cache_has_key('access_token')
                      context.cached_value('access_token')
                    else
-                     TragicCode::Azure.get_access_token(options['metadata_api_version'])
+                     token = TragicCode::Azure.get_access_token(options['metadata_api_version'])
+                     context.cache('access_token', token)
+                     token
                    end
     begin
       secret_value = TragicCode::Azure.get_secret(
