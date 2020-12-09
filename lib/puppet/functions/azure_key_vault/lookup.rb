@@ -36,7 +36,6 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
           break
         end
       end
-
       if secret_found
         secret_value = TragicCode::Azure.get_secret(
           options['vault_name'],
