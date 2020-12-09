@@ -28,7 +28,7 @@ module TragicCode
     end
 
     def self.get_secrets(vault_name, vault_api_version, access_token)
-      uri = URI("https://#{vault_name}.vault.azure.net/secrets?maxresults=200&api-version=#{vault_api_version}")
+      uri = URI("https://#{vault_name}.vault.azure.net/secrets?api-version=#{vault_api_version}")
       req = Net::HTTP::Get.new(uri.request_uri)
       req['Authorization'] = "Bearer #{access_token}"
       res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
