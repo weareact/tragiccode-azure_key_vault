@@ -26,5 +26,16 @@ module TragicCode
       raise res.body unless res.is_a?(Net::HTTPSuccess)
       JSON.parse(res.body)['value']
     end
+
+    def self.get_secrets(vault_name, vault_api_version, access_token)
+      uri = URI("https://#{vault_name}.vault.azure.net/secrets?api-version=#{vault_api_version}&maxresults=1000")
+      req = Net::HTTP::Get.new(uri.request_uri)
+      req['Authorization'] = "Bearer #{access_token}"
+      res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+        http.request(req)
+      end
+      raise res.body unless res.is_a?(Net::HTTPSuccess)
+      secrets_res = JSON.parse(res.body)['value']
+    end
   end
 end

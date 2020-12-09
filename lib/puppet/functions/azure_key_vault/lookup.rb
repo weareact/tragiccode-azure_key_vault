@@ -19,13 +19,34 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
                      token
                    end
     begin
-      secret_value = TragicCode::Azure.get_secret(
-        options['vault_name'],
-        secret_name,
-        options['vault_api_version'],
-        access_token,
-        '',
-      )
+      vault_secrets = if context.cache_has_key('vault_secrets')
+                        context.cache_has_key('vault_secrets')
+                      else
+                        secrets = TragicCode::Azure.get_secrets(
+                          options['vault_name'],
+                          options['vault_api_version'],
+                          access_token,)
+                        context.cache('vault_secrets', secrets)
+                        secrets
+                      end
+      secret_found = false
+      for vault_secrets.each do |secret|
+        if secret_name.include? secret['id']
+        secret_found = true
+        break
+      end
+
+      if secret_found
+        secret_value = TragicCode::Azure.get_secret(
+          options['vault_name'],
+          secret_name,
+          options['vault_api_version'],
+          access_token,
+          '',
+        )
+      else
+        secret_value = nil
+      end
     rescue RuntimeError => e
       Puppet.warning(e.message)
       secret_value = nil
