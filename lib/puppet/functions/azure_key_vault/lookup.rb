@@ -32,8 +32,9 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
       secret_found = false
       for vault_secrets.each do |secret|
         if secret_name.include? secret['id']
-        secret_found = true
-        break
+          secret_found = true
+          break
+        end
       end
 
       if secret_found
