@@ -36,6 +36,17 @@ module TragicCode
       end
       raise res.body unless res.is_a?(Net::HTTPSuccess)
       secrets_res = JSON.parse(res.body)['value']
+      next_page = JSON.parse(res.body)['nextLink']
+      while not next_page.empty?
+        uri = URI(next_page)
+        res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+          http.request(req)
+        end
+        raise res.body unless res.is_a?(Net::HTTPSuccess)
+        secrets_res = secrets_res + JSON.parse(res.body)['value']
+        next_page = JSON.parse(res.body)['nextLink']
+      end
+      return secrets_res
     end
   end
 end
