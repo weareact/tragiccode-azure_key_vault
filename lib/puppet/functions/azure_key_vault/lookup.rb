@@ -49,8 +49,8 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
       Puppet.warning(e.message)
       secret_value = nil
     end
-    context.not_found if secret_value.nil?
-    return if secret_value.nil?
-    context.cache(secret_name, secret_value)
+    return context.not_found if secret_value.nil?
+
+    return context.cache(secret_name, secret_value)
   end
 end
