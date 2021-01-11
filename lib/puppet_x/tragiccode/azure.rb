@@ -39,6 +39,7 @@ module TragicCode
       next_page = JSON.parse(res.body)['nextLink']
       while not next_page.empty?
         uri = URI(next_page)
+        req['Authorization'] = "Bearer #{access_token}"
         res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
           http.request(req)
         end
