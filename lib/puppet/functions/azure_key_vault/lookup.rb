@@ -30,7 +30,7 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
                         context.cache('vault_secrets', secrets)
                         secrets
                       end
-      Puppet.info("azure_key_vault::lookup - Found secrets: #{vault_secrets}")
+      Puppet.debug("azure_key_vault::lookup - Found secrets: #{vault_secrets}")
       secret_found = false
       vault_secrets.each do |secret|
         secret_found = secret['id'].include? secret_name
