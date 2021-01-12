@@ -42,7 +42,7 @@ module TragicCode
       secrets_res = JSON.parse(res.body)['value']
       logger.info("TragicCode::Azure::get_secrets - Initial secrets found: #{secrets_res}")
       next_page = JSON.parse(res.body)['nextLink']
-      until next_page.blank?
+      until next_page.nil? or next_page.empty?
         logger.info("TragicCode::Azure::get_secrets - Getting next page: #{next_page}")
         uri = URI(next_page)
         req = Net::HTTP::Get.new(uri.request_uri)
