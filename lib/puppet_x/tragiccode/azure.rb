@@ -41,8 +41,8 @@ module TragicCode
       raise res.body unless res.is_a?(Net::HTTPSuccess)
       secrets_res = JSON.parse(res.body)['value']
       logger.info("TragicCode::Azure::get_secrets - Initial secrets found: #{secrets_res}")
-      next_page = JSON.parse(res.body).key?('nextLink') ? JSON.parse(res.body)['nextLink'] : ""
-      while not next_page.empty?
+      next_page = JSON.parse(res.body)['nextLink']
+      until next_page.blank?
         logger.info("TragicCode::Azure::get_secrets - Getting next page: #{next_page}")
         uri = URI(next_page)
         req = Net::HTTP::Get.new(uri.request_uri)
@@ -53,7 +53,7 @@ module TragicCode
         raise res.body unless res.is_a?(Net::HTTPSuccess)
         logger.info("TragicCode::Azure::get_secrets - Adding secrets: #{JSON.parse(res.body)['value']}")
         secrets_res = secrets_res + JSON.parse(res.body)['value']
-        next_page = JSON.parse(res.body).key?('nextLink') ? JSON.parse(res.body)['nextLink'] : ""
+        next_page = JSON.parse(res.body)['nextLink']
       end
       logger.info("TragicCode::Azure::get_secrets - Found secrets: #{secrets_res}")
       return secrets_res
