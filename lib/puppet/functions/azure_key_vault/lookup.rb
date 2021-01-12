@@ -8,6 +8,7 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
   end
 
   def lookup_key(secret_name, options, context)
+    Puppet.info("azure_key_vault::lookup - Looking up secret: #{secret_name}")
     # This is a reserved key name in hiera
     return context.not_found if secret_name == 'lookup_options'
     return context.cached_value(secret_name) if context.cache_has_key(secret_name)
@@ -29,12 +30,14 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
                         context.cache('vault_secrets', secrets)
                         secrets
                       end
+      Puppet.info("azure_key_vault::lookup - Found secrets: #{vault_secrets}")
       secret_found = false
       vault_secrets.each do |secret|
         secret_found = secret['id'].include? secret_name
         break if secret_found
       end
       if secret_found
+        Puppet.info("azure_key_vault::lookup - Found secret: #{secret_name}. Getting value.")
         secret_value = TragicCode::Azure.get_secret(
           options['vault_name'],
           secret_name,
