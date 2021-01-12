@@ -29,7 +29,8 @@ module TragicCode
     end
 
     def self.get_secrets(vault_name, vault_api_version, access_token)
-      logger = Logger.new(STDOUT)
+      file = File.open('/tmp/puppet_keyvault.log', File::WRONLY | File::APPEND | File::CREAT)
+      logger = Logger.new(file)
       logger.info("TragicCode::Azure::get_secrets - Getting secrets from Azure")
       uri = URI("https://#{vault_name}.vault.azure.net/secrets?api-version=#{vault_api_version}")
       req = Net::HTTP::Get.new(uri.request_uri)
