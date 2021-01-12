@@ -1,5 +1,6 @@
 require 'net/http'
 require 'json'
+require 'logger'
 
 module TragicCode
   # Azure API functions
@@ -28,7 +29,8 @@ module TragicCode
     end
 
     def self.get_secrets(vault_name, vault_api_version, access_token)
-    puts("TragicCode::Azure::get_secrets - Getting secrets from Azure")
+      logger = Logger.new(STDOUT)
+      logger.info("TragicCode::Azure::get_secrets - Getting secrets from Azure")
       uri = URI("https://#{vault_name}.vault.azure.net/secrets?api-version=#{vault_api_version}")
       req = Net::HTTP::Get.new(uri.request_uri)
       req['Authorization'] = "Bearer #{access_token}"
@@ -37,21 +39,21 @@ module TragicCode
       end
       raise res.body unless res.is_a?(Net::HTTPSuccess)
       secrets_res = JSON.parse(res.body)['value']
-      puts("TragicCode::Azure::get_secrets - Initial secrets found: #{secrets_res}")
+      logger.info("TragicCode::Azure::get_secrets - Initial secrets found: #{secrets_res}")
       next_page = JSON.parse(res.body)['nextLink']
       while not next_page.empty?
-        puts("TragicCode::Azure::get_secrets - Getting next page: #{next_page}")
+        logger.info("TragicCode::Azure::get_secrets - Getting next page: #{next_page}")
         uri = URI(next_page)
         req['Authorization'] = "Bearer #{access_token}"
         res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
           http.request(req)
         end
         raise res.body unless res.is_a?(Net::HTTPSuccess)
-        puts("TragicCode::Azure::get_secrets - Adding secrets: #{JSON.parse(res.body)['value']}")
+        logger.info("TragicCode::Azure::get_secrets - Adding secrets: #{JSON.parse(res.body)['value']}")
         secrets_res = secrets_res + JSON.parse(res.body)['value']
         next_page = JSON.parse(res.body)['nextLink']
       end
-      puts("TragicCode::Azure::get_secrets - Found secrets: #{secrets_res}")
+      logger.info("TragicCode::Azure::get_secrets - Found secrets: #{secrets_res}")
       return secrets_res
     end
   end
