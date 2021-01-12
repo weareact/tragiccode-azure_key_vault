@@ -45,6 +45,7 @@ module TragicCode
       while not next_page.empty?
         logger.info("TragicCode::Azure::get_secrets - Getting next page: #{next_page}")
         uri = URI(next_page)
+        req = Net::HTTP::Get.new(uri.request_uri)
         req['Authorization'] = "Bearer #{access_token}"
         res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
           http.request(req)
