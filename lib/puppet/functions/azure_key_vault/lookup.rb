@@ -46,6 +46,7 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
           '',
         )
       else
+        Puppet.info("azure_key_vault::lookup - Did not find secret: #{secret_name}. Setting value to nil")
         secret_value = nil
       end
     rescue RuntimeError => e
@@ -54,6 +55,7 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
     end
     return context.not_found if secret_value.nil?
 
+    Puppet.info("azure_key_vault::lookup - Returning secret value #{context.cache(secret_name, secret_value)}"
     return context.cache(secret_name, secret_value)
   end
 end
