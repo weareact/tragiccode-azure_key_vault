@@ -29,6 +29,7 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
                           options['vault_api_version'],
                           access_token,)
                         context.cache('vault_secrets', secrets)
+                        Puppet.info("azure_key_vault::lookup - No cached secrets. Added secrets to cache: #{context.cached_value('vault_secrets')}")
                         secrets
                       end
       Puppet.debug("azure_key_vault::lookup - Found secrets: #{vault_secrets}")
