@@ -21,6 +21,7 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
                    end
     begin
       vault_secrets = if context.cache_has_key('vault_secrets')
+                        Puppet.info("azure_key_vault::lookup - Using cached secrets list: #{context.cached_value('vault_secrets')}")
                         context.cached_value('vault_secrets')
                       else
                         secrets = TragicCode::Azure.get_secrets(
