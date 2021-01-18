@@ -39,12 +39,12 @@ module TragicCode
       end
       raise res.body unless res.is_a?(Net::HTTPSuccess)
       secrets_res = JSON.parse(res.body)['value']
-      logger.info("TragicCode::Azure::get_secrets - Initial secrets found: #{secrets_res}")
+      logger.debug("TragicCode::Azure::get_secrets - Initial secrets found: #{secrets_res}")
       next_page = JSON.parse(res.body)['nextLink']
       # Only log if there is no next page link
       logger.info("TragicCode::Azure::get_secrets - Only one page of secrets to get") if next_page.nil? or next_page.empty?
       until next_page.nil? or next_page.empty?
-        logger.info("TragicCode::Azure::get_secrets - Getting next page: #{next_page}")
+        logger.debug("TragicCode::Azure::get_secrets - Getting next page: #{next_page}")
         uri = URI(next_page)
         req = Net::HTTP::Get.new(uri.request_uri)
         req['Authorization'] = "Bearer #{access_token}"
@@ -52,11 +52,11 @@ module TragicCode
           http.request(req)
         end
         raise res.body unless res.is_a?(Net::HTTPSuccess)
-        logger.info("TragicCode::Azure::get_secrets - Adding secrets: #{JSON.parse(res.body)['value']}")
+        logger.debug("TragicCode::Azure::get_secrets - Adding secrets: #{JSON.parse(res.body)['value']}")
         secrets_res = secrets_res + JSON.parse(res.body)['value']
         next_page = JSON.parse(res.body)['nextLink']
       end
-      logger.info("TragicCode::Azure::get_secrets - Found secrets: #{secrets_res}")
+      logger.debug("TragicCode::Azure::get_secrets - Found secrets: #{secrets_res}")
       return secrets_res
     end
   end

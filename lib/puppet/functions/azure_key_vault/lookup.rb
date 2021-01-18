@@ -21,7 +21,7 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
                    end
     begin
       vault_secrets = if context.cache_has_key('vault_secrets')
-                        Puppet.info("azure_key_vault::lookup - Using cached secrets list: #{context.cached_value('vault_secrets')}")
+                        Puppet.debug("azure_key_vault::lookup - Using cached secrets list: #{context.cached_value('vault_secrets')}")
                         context.cached_value('vault_secrets')
                       else
                         secrets = TragicCode::Azure.get_secrets(
@@ -29,7 +29,7 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
                           options['vault_api_version'],
                           access_token,)
                         context.cache('vault_secrets', secrets)
-                        Puppet.info("azure_key_vault::lookup - No cached secrets. Added secrets to cache: #{context.cached_value('vault_secrets')}")
+                        Puppet.debug("azure_key_vault::lookup - No cached secrets. Added secrets to cache: #{context.cached_value('vault_secrets')}")
                         secrets
                       end
       Puppet.debug("azure_key_vault::lookup - Found secrets: #{vault_secrets}")
@@ -48,7 +48,7 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
           '',
         )
       else
-        Puppet.info("azure_key_vault::lookup - Did not find secret: #{secret_name}. Setting value to nil")
+        Puppet.debug("azure_key_vault::lookup - Did not find secret: #{secret_name}. Setting value to nil")
         secret_value = nil
       end
     rescue RuntimeError => e
@@ -57,7 +57,6 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
     end
     return context.not_found if secret_value.nil?
 
-    Puppet.info("azure_key_vault::lookup - Returning secret value #{context.cache(secret_name, secret_value)}")
     return context.cache(secret_name, secret_value)
   end
 end
