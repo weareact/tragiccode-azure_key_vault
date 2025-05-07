@@ -13,9 +13,10 @@ Puppet::Functions.create_function(:'azure_key_vault::secret', Puppet::Functions:
     required_param 'String', :secret_name
     required_param 'Hash',   :api_versions_hash
     optional_param 'String', :secret_version
+    optional_param 'String', :client_id
   end
 
-  def secret(cache, vault_name, secret_name, api_versions_hash, secret_version = '')
+  def secret(cache, vault_name, secret_name, api_versions_hash, secret_version = '', client_id = nil)
     Puppet.debug("vault_name: #{vault_name}")
     Puppet.debug("secret_name: #{secret_name}")
     Puppet.debug("secret_version: #{secret_version}")
@@ -24,7 +25,7 @@ Puppet::Functions.create_function(:'azure_key_vault::secret', Puppet::Functions:
     cache_hash = cache.retrieve(self)
     unless cache_hash.key?(:access_token)
       Puppet.debug("retrieving access token since it's not in the cache")
-      cache_hash[:access_token] = TragicCode::Azure.get_access_token(api_versions_hash['metadata_api_version'])
+      cache_hash[:access_token] = TragicCode::Azure.get_access_token(api_versions_hash['metadata_api_version'], client_id)
     end
     secret_value = TragicCode::Azure.get_secret(
       vault_name,
