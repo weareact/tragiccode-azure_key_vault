@@ -8,6 +8,8 @@ module TragicCode
 
     # Checks if the environment contains a federated token.
     def self.workload_identity_available?
+      logger = Logger.new(STDOUT)
+      logger.debug("Environment Variables: #{ENV.keys}")
       (ENV.key?('AZURE_FEDERATED_TOKEN') || ENV.key?('AZURE_FEDERATED_TOKEN_FILE')) && ENV.key?('AZURE_TENANT_ID') && ENV.key?('AZURE_CLIENT_ID')
     end
 
