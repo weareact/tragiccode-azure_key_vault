@@ -4,7 +4,7 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
   dispatch :lookup_key do
     param 'Variant[String, Numeric]', :secret_name
     param 'Struct[{vault_name => String, vault_api_version => String, metadata_api_version => String,
-           client_id => Optional[String], use_workload_identity => Optional[Boolean]}]', :options
+           client_id => Optional[String], tenant_id => Optional[String], use_workload_identity => Optional[Boolean]}]', :options
     param 'Puppet::LookupContext', :context
   end
 
@@ -17,7 +17,7 @@ Puppet::Functions.create_function(:'azure_key_vault::lookup') do
                      context.cached_value('access_token')
                    else
                      if options['use_workload_identity']
-                       token = TragicCode::Azure.get_workload_identity_token()
+                       token = TragicCode::Azure.get_workload_identity_token(options['tenant_id'], options['client_id'])
                      else
                        token = options.key?('client_id') ? TragicCode::Azure.get_access_token(options['metadata_api_version'], options['client_id']) : TragicCode::Azure.get_access_token(options['metadata_api_version'])
                      end

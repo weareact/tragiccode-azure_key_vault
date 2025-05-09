@@ -6,32 +6,24 @@ module TragicCode
   # Azure API functions
   class Azure
 
-    # Checks if the environment contains a federated token.
-    def self.workload_identity_available?
-      logger = Logger.new(STDOUT)
-      logger.debug("Environment Variables: #{ENV.keys}")
-      (ENV.key?('AZURE_FEDERATED_TOKEN') || ENV.key?('AZURE_FEDERATED_TOKEN_FILE')) && ENV.key?('AZURE_TENANT_ID') && ENV.key?('AZURE_CLIENT_ID')
-    end
-
     # Retrieves the federated token from a file or environment.
     def self.read_federated_token
-      if ENV['AZURE_FEDERATED_TOKEN_FILE'] && File.exist?(ENV['AZURE_FEDERATED_TOKEN_FILE'])
-        File.read(ENV['AZURE_FEDERATED_TOKEN_FILE']).strip
-      elsif ENV['AZURE_FEDERATED_TOKEN']
-        ENV['AZURE_FEDERATED_TOKEN']
+      fed_token_file_path = "/var/run/secrets/azure/tokens/azure-identity-token"
+      if File.exist?(fed_token_file_path)
+        File.read(fed_token_file_path).strip
       else
         raise "No federated token found for workload identity."
       end
     end
 
     # Uses the workload identity flow (client credentials with JWT assertion) to get an access token.
-    def self.get_workload_identity_token
+    def self.get_workload_identity_token(tenant_id, client_id)
       raise "Workload identity selected but not present in environment" unless workload_identity_available?
       fed_token = read_federated_token
-      uri = URI("https://login.microsoftonline.com/#{ENV['AZURE_TENANT_ID']}/oauth2/v2.0/token")
+      uri = URI("https://login.microsoftonline.com/#{tenant_id}/oauth2/v2.0/token")
       headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
       req_body = URI.encode_www_form(
-        'client_id'             => ENV['AZURE_CLIENT_ID'],
+        'client_id'             => client_id,
         'grant_type'            => 'client_credentials',
         'client_assertion'      => fed_token,
         'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
