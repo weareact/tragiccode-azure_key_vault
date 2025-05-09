@@ -18,7 +18,6 @@ module TragicCode
 
     # Uses the workload identity flow (client credentials with JWT assertion) to get an access token.
     def self.get_workload_identity_token(tenant_id, client_id)
-      raise "Workload identity selected but not present in environment" unless workload_identity_available?
       fed_token = read_federated_token
       uri = URI("https://login.microsoftonline.com/#{tenant_id}/oauth2/v2.0/token")
       headers = { 'Content-Type' => 'application/x-www-form-urlencoded' }
